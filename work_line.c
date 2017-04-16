@@ -1,7 +1,8 @@
-#include <stdio.hi> #include <string.h>
+#include <stdio.hi> 
+#include <string.h>
 
 #define STATE_NAME_LEN 64
-
+#define MYLOG printf
 #define container_of(ptr, type, member) ({      \  
     const typeof( ((type *)0)->member ) *__mptr = (ptr);    \  
     (type *)( (char *)__mptr - offsetof(type,member) );})  
@@ -33,6 +34,7 @@ typedef struct trans_struct {
 	list_head trans_list;
 	state_struct *srcstateptr, *desstateptr;
 } trans_struct;
+
 list_head g_work_flow = {NULL, NULL};
 
 state_struct* get_state_by_name(list_head *workflow, char *statename) {
@@ -48,13 +50,23 @@ state_struct* get_state_by_name(list_head *workflow, char *statename) {
 	}
 	return NULL;
 }
+
 state_struct *alloc_init_state () {
-    state_struct *stateptr;
+    state_struct *stateptr = NULL;
 	stateptr = malloc(sizeof(state_struct));
 	if (!stateptr)
 		return NULL;
 	memset(stateptr, 0, sizeof(state_struct));
     return stateptr;
+}
+
+trans_struct *alloc_init_trans() {
+    trans_struct *transptr = NULL;
+	transptr = malloc(sizeof(trans_struct));
+	if(!transptr)
+		return NULL;
+	memset(transptr, 0, sizeof(trans_struct));
+	return transptr;
 }
 
 void add_state_to_workflow(list_head *ptrflow, state_struct *ptrstate) {
@@ -71,26 +83,26 @@ void add_state_to_workflow(list_head *ptrflow, state_struct *ptrstate) {
 }
 
 void add_trans_to_workflow(state_struct *workflow, char *src_name, char *des_name) {
-    state_struct *srcstateptr = NULL, *desstateptr = NULL;
+    state_struct *stateptrarr[2] = {NULL, NULL}, *srcstateptr = NULL, *desstateptr = NULL;
 	trans_struct *transptr = NULL;
-	if((srcstateptr = get_state_by_name(workflow, src_name)) == NULL) {
-	    srcstateptr = alloc_init_state();
-		if(srcstateptr) {
-			add_state_to_workflow(workflow, srcstateptr);
+	char *nameptr[2] = {src_name, des_name};
+	int i = 0;
+    
+	for(i = 0; i < 2; i ++) {
+		if((stateptrarr[i] = get_state_by_name(workflow, nameptr[i])) == NULL) {
+			stateptrarr[i] = alloc_init_state();
+			if(!stateptrarr[i]) {
+				MYLOG("alloc state fail, %sname:%s\n", (i == 0)?"src_":"des_", nameptr[i]);
+				return false;
+			}
+			add_state_to_workflow(workflow, srcstateptr[i]);
 		}
 	}
 
-	if((desstateptr = get_state_by_name(workflow, des_name)) == NULL) {
-	    desstateptr = alloc_init_state();
-		if(desstateptr) {
-			add_state_to_workflow(workflow, desstateptr);
-		}
-	}
-
-	if(get_trans_by_state(srcstateptr, desstateptr) == NULL) {
+	if(get_trans_by_state(stateptrarr[0], stateptrarr[1]) == NULL) {
 	    transptr = alloc_init_trans();
 		if(transptr) {
-            add_trans_to_state(transptr, srcstateptr, desstateptr);
+            add_trans_to_state(transptr,tateptrarr[0], stateptrarr[1]);
 		}
 	}
 
