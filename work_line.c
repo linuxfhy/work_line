@@ -63,6 +63,17 @@ state_struct *alloc_init_state () {
     return stateptr;
 }
 
+
+/*todo */
+trans_struct *get_trans_by_state(state_struct *srcstateptr, state_struct *desstateptr) {
+
+}
+
+/*todo*/
+bool add_trans_to_state(trans_struct *transptr, state_struct *srcstateptr, state_struct *desstateptr) {
+
+}
+
 trans_struct *alloc_init_trans() {
     trans_struct *transptr = NULL;
     transptr = malloc(sizeof(trans_struct));
@@ -105,7 +116,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
     if(get_trans_by_state(stateptrarr[0], stateptrarr[1]) == NULL) {
         transptr = alloc_init_trans();
         if(transptr) {
-            add_trans_to_state(transptr,tateptrarr[0], stateptrarr[1]);
+            add_trans_to_state(transptr,stateptrarr[0], stateptrarr[1]);
         }
     }
 
