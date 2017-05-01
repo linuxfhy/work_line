@@ -57,6 +57,7 @@ void add_to_list_tail(list_head *list, list_head *newnodeptr) {
 state_struct* get_state_by_name(list_head *workflow, char *statename) {
     list_head *next = workflow->next;
     state_struct *stateptr;
+    MYLOG("ENTER get_state_by_name\n");
     while (next != NULL) {
         stateptr = container_of(next, state_struct, state_list);
 
@@ -126,7 +127,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
     trans_struct *transptr = NULL;
     char *nameptr[2] = {src_name, des_name};
     int i = 0;
-
+    MYLOG("nameptr0 is %s, nameptr1 is %s\n", nameptr[0], nameptr[1]);
     for(i = 0; i < 2; i ++) {
         if((stateptrarr[i] = get_state_by_name(workflow, nameptr[i])) == NULL) {
             stateptrarr[i] = alloc_init_state();
@@ -137,6 +138,8 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
             add_state_to_workflow(workflow, stateptrarr[i]);
         }
     }
+
+   // MYLOG("add to state to work flow ok\n");
 
     if(get_trans_by_state(stateptrarr[0], stateptrarr[1]) == NULL) {
         transptr = alloc_init_trans();
