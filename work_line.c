@@ -151,8 +151,8 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
 void main() {
     int i;
     for (i = 0; i < sizeof(transtable)/sizeof(statetrans) ; i ++) {
-        printf("transtable[%d].srcstate is:%s,desstate is:%s\n",
+        MYLOG("transtable[%d].srcstate is:%s,desstate is:%s\n",
                 i, transtable[i].srcstate, transtable[i].desstate);
-            add_trans_to_workflow(&g_work_flow, transtable[i].srcstate, transtable[i].desstate);
+        add_trans_to_workflow(&g_work_flow, transtable[i].srcstate, transtable[i].desstate);
     }
 }
