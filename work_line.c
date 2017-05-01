@@ -19,7 +19,7 @@ typedef struct list_head {
     struct list_head *prev, *next;
 } list_head;
 
-typedef state_struct {
+typedef struct state_struct {
     list_head state_list;
     list_head trans_list;
     char state_name[STATE_NAME_LEN];
@@ -40,6 +40,20 @@ statetrans transtable[] = {
 list_head g_work_flow = {NULL, NULL};
 /**************************************************************************/
 
+/*complete*/
+add_to_list_tail(list_head *list, list_head *newnodeptr) {
+    if(list->next == NULL) {
+        list->next = newnodeptr;
+        list->prev = newnodeptr;
+        newnodeptr->prev = list;
+    } else {
+        list->prev->next = newnodeptr;
+        newnodeptr->prev = list->prev;
+        list->prev = newnodeptr;
+    }
+}
+
+/*complete */
 state_struct* get_state_by_name(list_head *workflow, char *statename) {
     list_head *next = workflow->next;
     state_struct *stateptr; 
@@ -54,48 +68,59 @@ state_struct* get_state_by_name(list_head *workflow, char *statename) {
     return NULL;
 }
 
+/*complete */
 state_struct *alloc_init_state () {
     state_struct *stateptr = NULL;
     stateptr = malloc(sizeof(state_struct));
-    if (!stateptr)
+    if (!stateptr) {
+        MYLOG("alloc state_struct fail\n");
         return NULL;
+    }
     memset(stateptr, 0, sizeof(state_struct));
     return stateptr;
 }
 
 
-/*todo */
+/*complete */
 trans_struct *get_trans_by_state(state_struct *srcstateptr, state_struct *desstateptr) {
-
+    list_head *next = srcstateptr->trans_list.next;
+    trans_struct *transptr; 
+    while (next != NULL) {
+        transptr = container_of(next, trans_struct, trans_list);
+        if(transptr->desstateptr == desstateptr) {
+            return transptr;
+        }
+        next = transptr->trans_list.next;
+    }
+    return NULL;
 }
 
-/*todo*/
+/*complete*/
 bool add_trans_to_state(trans_struct *transptr, state_struct *srcstateptr, state_struct *desstateptr) {
-
+    transptr->srcstateptr = srcstateptr;
+    transptr->desstateptr = desstateptr;
+    add_to_list_tail(&srcstateptr->trans_list, transptr->trans_list);
 }
 
+/*complete*/
 trans_struct *alloc_init_trans() {
     trans_struct *transptr = NULL;
     transptr = malloc(sizeof(trans_struct));
-    if(!transptr)
+    if(!transptr) {
+        MYLOG("alloc trans_struct fail\n");
         return NULL;
+    }
     memset(transptr, 0, sizeof(trans_struct));
     return transptr;
 }
 
+/*complete*/
 void add_state_to_workflow(list_head *ptrflow, state_struct *ptrstate) {
     list_head newnode = ptrstate->state_list;
-    if(ptrflow->next == NULL) {
-        ptrflow->next = &newnode;
-        ptrflow->prev = &newnode;
-        newnode.prev = ptrflow;
-    } else {
-        ptrflow->prev->next = newnode;
-        newnode.prev = ptrflow->prev;
-        ptrflow->prev = &newnode;
-    }
+    add_to_list_tail(ptrflow, &newnode);
 }
 
+/*complete*/
 void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) {
     state_struct *stateptrarr[2] = {NULL, NULL};
     trans_struct *transptr = NULL;
@@ -122,6 +147,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
 
 }
 
+/*complete*/
 void main() {
     int i;
     for (i = 0; i < sizeof(transtable)/sizeof(statetrans) ; i ++) {
