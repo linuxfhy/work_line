@@ -1,11 +1,11 @@
-#include <stdio.hi> 
+#include <stdio.hi>
 #include <string.h>
 
 #define STATE_NAME_LEN 64
 #define MYLOG printf
-#define container_of(ptr, type, member) ({      \  
-    const typeof( ((type *)0)->member ) *__mptr = (ptr);    \  
-    (type *)( (char *)__mptr - offsetof(type,member) );})  
+#define container_of(ptr, type, member) ({      \
+    const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+    (type *)( (char *)__mptr - offsetof(type,member) );})
 
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
@@ -56,7 +56,7 @@ add_to_list_tail(list_head *list, list_head *newnodeptr) {
 /*complete */
 state_struct* get_state_by_name(list_head *workflow, char *statename) {
     list_head *next = workflow->next;
-    state_struct *stateptr; 
+    state_struct *stateptr;
     while (next != NULL) {
         stateptr = container_of(next, state_struct, state_list);
 
@@ -84,7 +84,7 @@ state_struct *alloc_init_state () {
 /*complete */
 trans_struct *get_trans_by_state(state_struct *srcstateptr, state_struct *desstateptr) {
     list_head *next = srcstateptr->trans_list.next;
-    trans_struct *transptr; 
+    trans_struct *transptr;
     while (next != NULL) {
         transptr = container_of(next, trans_struct, trans_list);
         if(transptr->desstateptr == desstateptr) {
@@ -126,7 +126,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
     trans_struct *transptr = NULL;
     char *nameptr[2] = {src_name, des_name};
     int i = 0;
-    
+
     for(i = 0; i < 2; i ++) {
         if((stateptrarr[i] = get_state_by_name(workflow, nameptr[i])) == NULL) {
             stateptrarr[i] = alloc_init_state();
