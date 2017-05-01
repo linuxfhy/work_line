@@ -1,6 +1,6 @@
-#include <stdio.hi>
+#include <stdio.h>
 #include <string.h>
-
+#include <stdlib.h>
 #define STATE_NAME_LEN 64
 #define MYLOG printf
 #define container_of(ptr, type, member) ({      \
@@ -41,7 +41,7 @@ list_head g_work_flow = {NULL, NULL};
 /**************************************************************************/
 
 /*complete*/
-add_to_list_tail(list_head *list, list_head *newnodeptr) {
+void add_to_list_tail(list_head *list, list_head *newnodeptr) {
     if(list->next == NULL) {
         list->next = newnodeptr;
         list->prev = newnodeptr;
@@ -96,10 +96,10 @@ trans_struct *get_trans_by_state(state_struct *srcstateptr, state_struct *dessta
 }
 
 /*complete*/
-bool add_trans_to_state(trans_struct *transptr, state_struct *srcstateptr, state_struct *desstateptr) {
+void add_trans_to_state(trans_struct *transptr, state_struct *srcstateptr, state_struct *desstateptr) {
     transptr->srcstateptr = srcstateptr;
     transptr->desstateptr = desstateptr;
-    add_to_list_tail(&srcstateptr->trans_list, transptr->trans_list);
+    add_to_list_tail(&srcstateptr->trans_list, &transptr->trans_list);
 }
 
 /*complete*/
@@ -132,7 +132,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
             stateptrarr[i] = alloc_init_state();
             if(!stateptrarr[i]) {
                 MYLOG("alloc state fail, %sname:%s\n", (i == 0)?"src_":"des_", nameptr[i]);
-                return false;
+                return;
             }
             add_state_to_workflow(workflow, stateptrarr[i]);
         }
