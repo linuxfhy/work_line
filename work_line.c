@@ -59,6 +59,7 @@ state_struct* get_state_by_name(list_head *workflow, char *statename) {
     state_struct *stateptr;
     MYLOG("ENTER get_state_by_name\n");
     while (next != NULL) {
+		MYLOG("g_work_flow is %p, next is %p\n", &g_work_flow, next);
         stateptr = container_of(next, state_struct, state_list);
 
         /*todo: consider if state_name is prefix of statename*/
@@ -129,7 +130,9 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
     int i = 0;
     MYLOG("nameptr0 is %s, nameptr1 is %s\n", nameptr[0], nameptr[1]);
     for(i = 0; i < 2; i ++) {
-        if((stateptrarr[i] = get_state_by_name(workflow, nameptr[i])) == NULL) {
+        stateptrarr[i] = get_state_by_name(workflow, nameptr[i]);
+		MYLOG("EXIT get state by name\n");
+        if(stateptrarr[i] == NULL) {
             stateptrarr[i] = alloc_init_state();
             if(!stateptrarr[i]) {
                 MYLOG("alloc state fail, %sname:%s\n", (i == 0)?"src_":"des_", nameptr[i]);
