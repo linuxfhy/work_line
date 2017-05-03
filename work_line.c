@@ -32,9 +32,9 @@ typedef struct trans_struct {
 
 /**************************************************************************/
 statetrans transtable[] = {
-    {"吃饭","睡觉"},
-    {"睡觉","打豆豆"},
-    {"打豆豆","吃饭"}
+    {"chifan","shuijiao"},
+    {"shuijiao","dadoudou"},
+    {"dadoudou","chifan"}
 };
 
 list_head g_work_flow = {NULL, NULL};
@@ -57,15 +57,18 @@ void add_to_list_tail(list_head *list, list_head *newnodeptr) {
 state_struct* get_state_by_name(list_head *workflow, char *statename) {
     list_head *next = workflow->next;
     state_struct *stateptr;
+	int tmp;
     MYLOG("ENTER get_state_by_name\n");
     while (next != NULL) {
 		MYLOG("g_work_flow is %p, next is %p\n", &g_work_flow, next);
         stateptr = container_of(next, state_struct, state_list);
-
+        MYLOG("stateptr get from container_of is %p\n", stateptr);
         /*todo: consider if state_name is prefix of statename*/
         if(0 == strncmp(statename, stateptr->state_name, strlen(stateptr->state_name)))
             return stateptr;
         next = stateptr->state_list.next;
+		MYLOG("Please input a number,stateptr->state_name is %s\n", stateptr->state_name);
+	    scanf("%d", &tmp);
     }
     return NULL;
 }
@@ -79,6 +82,7 @@ state_struct *alloc_init_state () {
         return NULL;
     }
     memset(stateptr, 0, sizeof(state_struct));
+	MYLOG("alloc state ptr is %p,state_list is %p\n", stateptr, &stateptr->state_list);
     return stateptr;
 }
 
@@ -138,6 +142,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
                 MYLOG("alloc state fail, %sname:%s\n", (i == 0)?"src_":"des_", nameptr[i]);
                 return;
             }
+			strncpy(stateptrarr[i]->state_name, nameptr[i], strlen(nameptr[i]));
             add_state_to_workflow(workflow, stateptrarr[i]);
         }
     }
