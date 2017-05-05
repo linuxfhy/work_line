@@ -33,8 +33,10 @@ typedef struct trans_struct {
 /**************************************************************************/
 statetrans transtable[] = {
     {"吃饭","睡觉"},
+	{"睡觉","今天不打豆豆去吃饭吧"},
     {"睡觉","打豆豆"},
-    {"打豆豆","吃饭"}
+    {"打豆豆","吃饭"},
+	{"吃饭","不睡觉直接打豆豆"}
 };
 
 list_head g_work_flow = {NULL, NULL};
@@ -97,7 +99,7 @@ trans_struct *get_trans_by_state(state_struct *srcstateptr, state_struct *dessta
         if(transptr->desstateptr == desstateptr) {
             return transptr;
         }
-        next = transptr->trans_list.next;
+        next = next->next;//transptr->trans_list.next;
     }
     return NULL;
 }
@@ -164,14 +166,43 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
 
 }
 /*todo:get next state from current state*/
-void get_next_state(char *cur_state_name, int *next_state_cnt, char next_state_buffer[STATE_NAME_LEN][STATE_NAME_LEN]) {
+void get_next_state(state_struct *cur_state_ptr, int *next_state_cnt, char next_state_buffer[STATE_NAME_LEN][STATE_NAME_LEN]) {
+	list_head *next = cur_state_ptr->trans_list.next;
+	trans_struct *transptr = NULL;
+	int count = 0;
+	while (next != NULL) {
+		transptr = container_of(next, trans_struct, trans_list);
+		strncpy(next_state_buffer[count], transptr->desstateptr->state_name, STATE_NAME_LEN);
+		count ++;
+		next = next->next;
+	}
+	*next_state_cnt = count;
 }
 /*complete*/
 void main() {
-    int i;
+    int i, count;
+	state_struct *stateptr;
+	list_head *next = NULL;
+	char next_state_buffer[STATE_NAME_LEN][STATE_NAME_LEN] = {'\0'};
     for (i = 0; i < sizeof(transtable)/sizeof(statetrans) ; i ++) {
         MYLOG("transtable[%d].srcstate is:%s,desstate is:%s\n",
                 i, transtable[i].srcstate, transtable[i].desstate);
         add_trans_to_workflow(&g_work_flow, transtable[i].srcstate, transtable[i].desstate);
     }
+	
+	next = g_work_flow.next;
+	while(next != NULL) {
+	    stateptr = container_of(next, state_struct, state_list);
+		memset(next_state_buffer, 0 ,sizeof(next_state_buffer));
+		get_next_state(stateptr, &count, next_state_buffer);
+
+		MYLOG("cur state is:%s,next state is:",stateptr->state_name);
+
+		for(i = 0; i < count; i ++) {
+			MYLOG(" %s",next_state_buffer[i]);
+		}
+		MYLOG("\n");
+
+		next = next->next;
+	}
 }
