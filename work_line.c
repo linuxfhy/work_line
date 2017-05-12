@@ -165,7 +165,7 @@ void add_trans_to_workflow(list_head *workflow, char *src_name, char *des_name) 
     }
 
 }
-/*todo:get next state from current state*/
+/*get next state from current state*/
 void get_next_state(state_struct *cur_state_ptr, int *next_state_cnt, char next_state_buffer[STATE_NAME_LEN][STATE_NAME_LEN]) {
     list_head *next = cur_state_ptr->trans_list.next;
     trans_struct *transptr = NULL;
